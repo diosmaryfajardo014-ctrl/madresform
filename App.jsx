@@ -362,14 +362,38 @@ export default function App(){
     const next=[...answers,v];
     setAnswers(next);
     if(step+1<QUESTIONS.length)setStep(s=>s+1);
-    else{setResult(RESULTS[calcResult(next)]);setPhase("result");}
-  };
+    else{const final = RESULTS[calcResult(next)];
+setResult(final);
+setPhase("result");
+
+fetch("/", {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: new URLSearchParams({
+    "form-name": "quiz",
+    name: name,
+    result: final.title,
+    answers: JSON.stringify(next)
+  }).toString()
+});
+  }
   const restart=()=>{setPhase("intro");setStep(0);setAnswers([]);setResult(null);setName("");};
   return(
     <>
       <style>{css}</style>
       <div className="page">
         <div className="card">
+          <div className="card">
+
+  {/* 👇 PEGAR AQUÍ */}
+  <form name="quiz" method="POST" data-netlify="true" hidden>
+    <input type="hidden" name="form-name" value="quiz" />
+    <input name="name" />
+    <input name="result" />
+    <input name="answers" />
+  </form>
+
+  {/* resto de tu app */}
           <div className="blob1"/><div className="blob2"/>
           {phase==="quiz"&&<ProgressBar current={step+1} total={QUESTIONS.length}/>}
           {phase==="intro"&&<Intro onStart={()=>setPhase("name")}/>}
